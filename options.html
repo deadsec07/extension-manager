@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Extension Manager — Options</title>
+  <style>
+    body { font: 14px/1.4 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; max-width: 760px; }
+    textarea { width: 100%; min-height: 120px; border-radius: 8px; border: 1px solid #ddd; padding: 10px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .row { display: flex; gap: 12px; align-items: center; margin: 12px 0; }
+    button { padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px; background: #fafafa; cursor: pointer; }
+    .muted { color: #666; }
+    code { background: #f6f6f6; padding: 2px 6px; border-radius: 6px; }
+    ul { margin-top: 6px; }
+  </style>
+</head>
+<body>
+  <h1>Extension Manager — Options</h1>
+  <p class="muted">Paste extension IDs line-by-line, or manage them from the popup checkboxes. IDs appear under each extension name in the popup.</p>
+
+  <h2>Inclusions</h2>
+  <textarea id="inclusions"></textarea>
+
+  <h2>Exclusions</h2>
+  <textarea id="exclusions"></textarea>
+
+  <div class="row">
+    <button id="save">Save</button>
+    <span id="status" class="muted"></span>
+  </div>
+
+  <h3>Tips</h3>
+  <ul>
+    <li><strong>Enable only inclusions:</strong> Only IDs listed above will be turned on; everything else will be turned off.</li>
+    <li><strong>Disable all except exclusions:</strong> Everything is turned off except the IDs listed in exclusions.</li>
+    <li><strong>Snapshot/Restore:</strong> Use from the popup to undo the last bulk change.</li>
+  </ul>
+
+  <script>
+    function getPrefs() {
+      return new Promise(resolve => chrome.storage.sync.get({ inclusions: [], exclusions: [] }, resolve));
+    }
+    function savePrefs(prefs) {
+      return new Promise(resolve => chrome.storage.sync.set(prefs, resolve));
+    }
+    function arrToText(arr) { return (arr || []).join('\n'); }
+    function textToArr(text) { return text.split('\n').map(s => s.trim()).filter(Boolean); }
+
+    (async function init() {
+      const prefs = await getPrefs();
+      document.getElementById('inclusions').value = arrToText(prefs.inclusions);
+      document.getElementById('exclusions').value = arrToText(prefs.exclusions);
+    })();
+
+    document.getElementById('save').onclick = async () => {
+      const inclusions = textToArr(document.getElementById('inclusions').value);
+      const exclusions = textToArr(document.getElementById('exclusions').value);
+      await savePrefs({ inclusions, exclusions });
+      const status = document.getElementById('status');
+      status.textContent = 'Saved';
+      setTimeout(() => status.textContent = '', 1200);
+    };
+  </script>
+</body>
+</html>

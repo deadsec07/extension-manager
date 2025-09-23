@@ -1,0 +1,24 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Node / tooling
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# Builds / bundles
+dist/
+build/
+*.zip
+
+# Env / secrets
+.env
+.env.local
+
+#chrome store related marketing stuff
+chrome_store/
